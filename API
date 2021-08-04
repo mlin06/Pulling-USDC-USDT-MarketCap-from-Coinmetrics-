@@ -1,0 +1,256 @@
+import pandas as pd
+import requests
+
+response0 = requests.get('https://community-api.coinmetrics.io/v4/timeseries/asset-metrics?assets=usdt_eth&metrics=CapMrktCurUSD&frequency=1d&pretty=true&start_time=2021-01-01T00:00:00.000Z&page_size=5000&paging_from=start').json()
+response1 = requests.get('https://community-api.coinmetrics.io/v4/timeseries/asset-metrics?assets=usdt&metrics=CapMrktCurUSD&frequency=1d&pretty=true&start_time=2021-01-01T00:00:00.000Z&page_size=5000&paging_from=start').json()
+response2 = requests.get('https://community-api.coinmetrics.io/v4/timeseries/asset-metrics?assets=usdt_trx&metrics=CapMrktCurUSD&frequency=1d&pretty=true&start_time=2021-01-01T00:00:00.000Z&page_size=5000&paging_from=start').json()
+response3 = requests.get('https://community-api.coinmetrics.io/v4/timeseries/asset-metrics?assets=usdc&metrics=CapMrktCurUSD&frequency=1d&pretty=true&start_time=2021-01-01T00:00:00.000Z&page_size=5000&paging_from=start').json()
+
+
+USDT_ETH = pd.DataFrame(response0['data'], columns=['time','CapMrktCurUSD'])
+USDT_OMNI = pd.DataFrame(response1['data'], columns=['time','CapMrktCurUSD'])
+USDT_TRX = pd.DataFrame(response2['data'], columns=['time','CapMrktCurUSD'])
+USDC = pd.DataFrame(response3['data'], columns=['time','CapMrktCurUSD'])
+
+USDT_ETH.to_csv('/Users/mlin/Desktop/coinmetrics/USDT_ETH_MKTCAP.csv', index=False)
+USDT_OMNI.to_csv('/Users/mlin/Desktop/coinmetrics/USDT_OMNI_MKTCAP.csv', index=False)
+USDT_TRX.to_csv('/Users/mlin/Desktop/coinmetrics/USDT_TRX_MKTCAP.csv', index=False)
+USDC.to_csv('/Users/mlin/Desktop/coinmetrics/USDC_MKTCAP.csv', index=False)
+
+# Pull stats and convert in panda form, save in csv local
+
+import pickle
+from googleapiclient.discovery import build
+
+SPREADSHEET_ID = '#google sheetID' # Get this one from the link in browser
+worksheet_name = 'USDT_ETH'
+path_to_csv = '#csv path'
+path_to_credentials = 'token.pickle'
+
+
+# convenience routines
+def find_sheet_id_by_name(sheet_name):
+    # ugly, but works
+    sheets_with_properties = API \
+        .spreadsheets() \
+        .get(spreadsheetId=SPREADSHEET_ID, fields='sheets.properties') \
+        .execute() \
+        .get('sheets')
+
+    for sheet in sheets_with_properties:
+        if 'title' in sheet['properties'].keys():
+            if sheet['properties']['title'] == sheet_name:
+                return sheet['properties']['sheetId']
+
+
+def push_csv_to_gsheet(csv_path, sheet_id):
+    with open(csv_path, 'r') as csv_file:
+        csvContents = csv_file.read()
+    body = {
+        'requests': [{
+            'pasteData': {
+                "coordinate": {
+                    "sheetId": sheet_id,
+                    "rowIndex": "0",  
+                    "columnIndex": "0", 
+                },
+                "data": csvContents,
+                "type": 'PASTE_NORMAL',
+                "delimiter": ',',
+            }
+        }]
+    }
+    request = API.spreadsheets().batchUpdate(spreadsheetId=SPREADSHEET_ID, body=body)
+    response = request.execute()
+    return response
+
+
+# upload
+with open(path_to_credentials, 'rb') as token:
+    credentials = pickle.load(token)
+
+API = build('sheets', 'v4', credentials=credentials)
+
+push_csv_to_gsheet(
+    csv_path=path_to_csv,
+    sheet_id=find_sheet_id_by_name(worksheet_name)
+)
+
+# import to google sheet
+
+import pickle
+from googleapiclient.discovery import build
+
+SPREADSHEET_ID = '#google sheet ID' # Get this one from the link in browser
+worksheet_name = 'USDT_OMNI'
+path_to_csv = 'csv path'
+path_to_credentials = 'token.pickle'
+
+
+# convenience routines
+def find_sheet_id_by_name(sheet_name):
+    # ugly, but works
+    sheets_with_properties = API \
+        .spreadsheets() \
+        .get(spreadsheetId=SPREADSHEET_ID, fields='sheets.properties') \
+        .execute() \
+        .get('sheets')
+
+    for sheet in sheets_with_properties:
+        if 'title' in sheet['properties'].keys():
+            if sheet['properties']['title'] == sheet_name:
+                return sheet['properties']['sheetId']
+
+
+def push_csv_to_gsheet(csv_path, sheet_id):
+    with open(csv_path, 'r') as csv_file:
+        csvContents = csv_file.read()
+    body = {
+        'requests': [{
+            'pasteData': {
+                "coordinate": {
+                    "sheetId": sheet_id,
+                    "rowIndex": "0",  
+                    "columnIndex": "0", 
+                },
+                "data": csvContents,
+                "type": 'PASTE_NORMAL',
+                "delimiter": ',',
+            }
+        }]
+    }
+    request = API.spreadsheets().batchUpdate(spreadsheetId=SPREADSHEET_ID, body=body)
+    response = request.execute()
+    return response
+
+
+# upload
+with open(path_to_credentials, 'rb') as token:
+    credentials = pickle.load(token)
+
+API = build('sheets', 'v4', credentials=credentials)
+
+push_csv_to_gsheet(
+    csv_path=path_to_csv,
+    sheet_id=find_sheet_id_by_name(worksheet_name)
+)
+
+#do the same for omni
+
+import pickle
+from googleapiclient.discovery import build
+
+SPREADSHEET_ID = '#google sheet ID' # Get this one from the link in browser
+worksheet_name = 'USDT_TRX'
+path_to_csv = '#csv path'
+path_to_credentials = 'token.pickle'
+
+
+# convenience routines
+def find_sheet_id_by_name(sheet_name):
+    # ugly, but works
+    sheets_with_properties = API \
+        .spreadsheets() \
+        .get(spreadsheetId=SPREADSHEET_ID, fields='sheets.properties') \
+        .execute() \
+        .get('sheets')
+
+    for sheet in sheets_with_properties:
+        if 'title' in sheet['properties'].keys():
+            if sheet['properties']['title'] == sheet_name:
+                return sheet['properties']['sheetId']
+
+
+def push_csv_to_gsheet(csv_path, sheet_id):
+    with open(csv_path, 'r') as csv_file:
+        csvContents = csv_file.read()
+    body = {
+        'requests': [{
+            'pasteData': {
+                "coordinate": {
+                    "sheetId": sheet_id,
+                    "rowIndex": "0",  
+                    "columnIndex": "0", 
+                },
+                "data": csvContents,
+                "type": 'PASTE_NORMAL',
+                "delimiter": ',',
+            }
+        }]
+    }
+    request = API.spreadsheets().batchUpdate(spreadsheetId=SPREADSHEET_ID, body=body)
+    response = request.execute()
+    return response
+
+
+# upload
+with open(path_to_credentials, 'rb') as token:
+    credentials = pickle.load(token)
+
+API = build('sheets', 'v4', credentials=credentials)
+
+push_csv_to_gsheet(
+    csv_path=path_to_csv,
+    sheet_id=find_sheet_id_by_name(worksheet_name)
+)
+
+#same for trx
+
+import pickle
+from googleapiclient.discovery import build
+
+SPREADSHEET_ID = '#googlesheet ID' # Get this one from the link in browser
+worksheet_name = 'USDC'
+path_to_csv = '#csv local path'
+path_to_credentials = 'token.pickle'
+
+
+# convenience routines
+def find_sheet_id_by_name(sheet_name):
+    # ugly, but works
+    sheets_with_properties = API \
+        .spreadsheets() \
+        .get(spreadsheetId=SPREADSHEET_ID, fields='sheets.properties') \
+        .execute() \
+        .get('sheets')
+
+    for sheet in sheets_with_properties:
+        if 'title' in sheet['properties'].keys():
+            if sheet['properties']['title'] == sheet_name:
+                return sheet['properties']['sheetId']
+
+
+def push_csv_to_gsheet(csv_path, sheet_id):
+    with open(csv_path, 'r') as csv_file:
+        csvContents = csv_file.read()
+    body = {
+        'requests': [{
+            'pasteData': {
+                "coordinate": {
+                    "sheetId": sheet_id,
+                    "rowIndex": "0",  
+                    "columnIndex": "0", 
+                },
+                "data": csvContents,
+                "type": 'PASTE_NORMAL',
+                "delimiter": ',',
+            }
+        }]
+    }
+    request = API.spreadsheets().batchUpdate(spreadsheetId=SPREADSHEET_ID, body=body)
+    response = request.execute()
+    return response
+
+
+# upload
+with open(path_to_credentials, 'rb') as token:
+    credentials = pickle.load(token)
+
+API = build('sheets', 'v4', credentials=credentials)
+
+push_csv_to_gsheet(
+    csv_path=path_to_csv,
+    sheet_id=find_sheet_id_by_name(worksheet_name)
+)
+
+#same for eth
